@@ -68,8 +68,8 @@ def search():
     # Return the list of places as a JSON response
     return jsonify(places)
 
-@app.route('/check_user', methods=['GET'])
-def check_user():
+@app.route('/login', methods=['GET'])
+def login():
     data = request.get_json()
     email = data['email']
     password = data['password']
@@ -83,6 +83,7 @@ def check_user():
             return jsonify({'success': True})
         else:
             return jsonify({'success': False, 'error': 'User not found or password is incorrect'})
+        
         
 @app.route('/leaderboard_add', methods=['POST'])
 def leaderboard():
@@ -127,7 +128,7 @@ def register():
             'ping': ''
         }
     )
-    return 'Registration successful'
+    return {'status':200, 'message': 'Registration successful'}
     
 @app.route('/ping',methods=['POST', 'GET']) # endpoint when user pings location
 def ping():
@@ -136,10 +137,12 @@ def ping():
     request_data= request.get_json()
     lat = request_data['lat']
     long = request_data['long']
-    
+        
     # loc=str(loc)
     # user_ref=ref.child(loc)
     # user_ref.push.set(loc)
+    return {'status':200, 'message': 'Ping successful'}
+
 
 if __name__ == '__main__':
     app.run(debug=True)
