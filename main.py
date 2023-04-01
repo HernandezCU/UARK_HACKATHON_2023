@@ -23,11 +23,15 @@ db_raids = db.reference('raids')
 def hello():
     return 'Home page of our python application.'
 
-@app.route('/search') # Endpoint for parks/beaches/recreational spots 80000 meters nearby
+@app.route('/search', methods=['POST']) # Endpoint for parks/beaches/recreational spots 80000 meters nearby
 def search():
     # Get the zip code from the request parameters
-    zip_code = request.get_json()['zip_code']
+    email = request.get_json()['email']
     
+    # get user location
+    user = db_users.child(email).get()
+    zip_code = user['zip']
+
     # Set up API key and endpoint URL
     # get from environment variable
     api_key = os.getenv('API_KEY')
@@ -67,11 +71,26 @@ def search():
     data = response.json()
     # Extract the name and location of each place and store them in a list
     for result in data["results"]:
-        place = {"name": result["name"], "location": result["geometry"]["location"]}
+        place = {
+            "name": result["name"], 
+            "location": result["geometry"]["location"],
+            "type": result["types"][0],
+        }
+        # get address from lat and long using reverse geocoding
+        reverse_geocoding_url = "https://maps.googleapis.com/maps/api/geocode/json"
+        reverse_geocoding_params = {
+            "latlng": f"{place['location']['lat']},{place['location']['lng']}",
+            "key": api_key
+        }
+        reverse_geocoding_response = requests.get(reverse_geocoding_url, params=reverse_geocoding_params)
+        reverse_geocoding_data = reverse_geocoding_response.json()
+        place["address"] = reverse_geocoding_data["results"][0]["formatted_address"]
+        
         places.append(place)
     
     # Return the list of places as a JSON response
-    return jsonify(places)
+    print(places)
+    return jsonify({"places": places})
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -86,8 +105,10 @@ def login():
 
     # Check if the user exists and the password matches
     if user['password'] == bcrypt.hashpw(password.encode(),"$2b$12$vj2GaHW10eRxDcJTTTAWI.".encode()).decode():
-        return jsonify({'success': True})
+        print("YES")
+        return jsonify({'success': True, 'error': ''})
     else:
+        print("NO")
         return jsonify({'success': False, 'error': 'User not found or password is incorrect'})
         
 @app.route('/leaderboard', methods=['GET'])
@@ -95,7 +116,7 @@ def leaderboard():
     # Get the list of users from the Firebase database
     users = db_users.get()
     # Sort the users by points
-    sorted_users = sorted(users.items(), key=lambda x: x[1]['points'], reverse=True)[:10]
+    sorted_users = sorted(users.values(), key=lambda user: user['points'], reverse=True)
     # Return the sorted list of users
     return jsonify(sorted_users)
 
@@ -134,7 +155,9 @@ def register():
             'ping': ''
         }
     )
-    return {'status':200, 'message': 'Registration successful'}
+
+    print("User created")
+    return {'success': True, 'error': ''}
     
 @app.route('/ping',methods=['POST', 'GET']) # endpoint when user pings location
 def ping():
@@ -152,10 +175,7 @@ def ping():
     # update the user's ping location
     db_users.child(user_key).update({'ping': f'{lat},{long}'})
 
-    # push the changes
-    db_users.push()
-
-    return {'status':200, 'message': 'Ping successful'}
+    return {'success': True, 'error': ''}
 
 @app.route('/raids', methods=['GET'])
 def raids():
@@ -180,11 +200,8 @@ def raids():
     # find nearby raids
     nearby_raids = []
     for raid in raids:
-        raid_lat = raid['lat']
-        raid_long = raid['lng']
-        if distance(float(ping_lat), float(ping_long), float(raid_lat), float(raid_long)) < 0.5:
-            if raid['id'] not in user['raids']:
-                nearby_raids.append(raid)
+        if raid['id'] not in user['raids']:
+            nearby_raids.append(raid)
 
     # return the list of nearby raids
     return jsonify(nearby_raids)
@@ -206,8 +223,7 @@ def finish_raid():
         }
     )
     # Push the changes
-    db_users.push()
-    return {'status':200, 'message': 'Raid finished successfully'}
+    return {'success': True, 'error': ''}
 
 @app.route('/create_raid', methods=['POST'])
 def create_raid():
@@ -235,7 +251,7 @@ def create_raid():
             'type': typ
         }
     )
-    return {'status':200, 'message': 'Raid created successfully'}
+    return {'success': True, 'error': ''}
 
 @app.route('/badges', methods=['GET'])
 def badges():
@@ -276,7 +292,7 @@ def badges():
 
     return jsonify(badges)
 
-@app.route('/me', methods=['GET'])
+@app.route('/me', methods=['POST'])
 def me():
     # get the user's data from the database
     json = request.get_json()
@@ -284,13 +300,8 @@ def me():
     user_key = user_key.replace(".", "-")
     user = db_users.child(user_key).get()
 
-    return jsonify(user)
+    return jsonify({"user":user})
 
-
-def distance(lat1, lon1, lat2, lon2):
-    p = 0.017453292519943295     #Pi/180
-    a = 0.5 - math.cos((lat2 - lat1) * p)/2 + math.cos(lat1 * p) * math.cos(lat2 * p) * (1 - math.cos((lon2 - lon1) * p)) / 2
-    return 12742 * math.asin(math.sqrt(a)) #2*R*asin...
 
 example_datetime_string = "2020-10-10 10:10:10"
 
