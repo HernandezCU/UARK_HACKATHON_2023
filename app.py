@@ -84,7 +84,6 @@ def login():
         else:
             return jsonify({'success': False, 'error': 'User not found or password is incorrect'})
         
-        
 @app.route('/leaderboard_add', methods=['POST'])
 def leaderboard():
     data = request.get_json()
@@ -137,10 +136,10 @@ def ping():
     request_data= request.get_json()
     lat = request_data['lat']
     long = request_data['long']
-        
-    # loc=str(loc)
-    # user_ref=ref.child(loc)
-    # user_ref.push.set(loc)
+    user_key = request_data['key']
+
+    
+
     return {'status':200, 'message': 'Ping successful'}
 
 
