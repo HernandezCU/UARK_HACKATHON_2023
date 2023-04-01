@@ -71,12 +71,9 @@ def ping():
     loc=request_data['pingloc']
 
 
-<<<<<<< HEAD
 @app.route('/leaderboard')#leaderpoint endpoint
 def leaderboard():
     leaderboard
 
-=======
->>>>>>> 69ec086d5581e7198c4ee9f9851e0b530a5298e6
 if __name__ == '__main__':
     app.run(debug=True)
