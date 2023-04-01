@@ -1,4 +1,4 @@
-GreenCityGo - University of Arkansas 2023 Hackathon
+# GreenCityGo - University of Arkansas 2023 Hackathon
 
 # Endpoint Functionalities
 /search: This endpoint searches for parks, beaches, and recreational spots near a given zip code. It uses the Google Maps API to perform this search. The latitude and longitude of the zip code are obtained using the Google Maps Geocoding API. The endpoint returns a list of places as a JSON response.
