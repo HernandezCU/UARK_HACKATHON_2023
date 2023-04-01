@@ -25,15 +25,12 @@ def hello():
 
 @app.route('/search') # Endpoint for parks/beaches/recreational spots 80000 meters nearby
 def search():
-    # Get the zip code from the request parameters
     zip_code = request.get_json()['zip_code']
     
-    # Set up API key and endpoint URL
     # get from environment variable
     api_key = os.getenv('API_KEY')
     endpoint_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     
-    # Get the latitude and longitude of the zip code using the Google Maps Geocoding API
     geocoding_url = "https://maps.googleapis.com/maps/api/geocode/json"
     geocoding_params = {
         "address": zip_code, 
@@ -50,7 +47,6 @@ def search():
     
     print(lat, lng)
 
-    # Specify the location and keyword parameters for the API request
     params = {
         "key": api_key,
         "location": f"{lat},{lng}",
@@ -59,13 +55,10 @@ def search():
     }
     
     places = []
-    # Make the API request
     response = requests.get(endpoint_url, params=params)
     print(params)
     
-    # Parse the response data as JSON
     data = response.json()
-    # Extract the name and location of each place and store them in a list
     for result in data["results"]:
         place = {"name": result["name"], "location": result["geometry"]["location"]}
         places.append(place)
@@ -92,11 +85,9 @@ def login():
         
 @app.route('/leaderboard', methods=['GET'])
 def leaderboard():
-    # Get the list of users from the Firebase database
     users = db_users.get()
     # Sort the users by points
     sorted_users = sorted(users.items(), key=lambda x: x[1]['points'], reverse=True)[:10]
-    # Return the sorted list of users
     return jsonify(sorted_users)
 
 def generate_login_token():
@@ -116,10 +107,9 @@ def register():
     email = email.replace(".", "-")
     password = data['password']
     zip = data['zip-code']
-    # Hash the email and password using SHA-256 algorithm
     p = password.encode()
     # hashed_password = bcrypt.hashpw(p,"$2b$12$vj2GaHW10eRxDcJTTTAWI.".encode())
-    # Store the hashed email and password in the Firebase database
+    # Store the hashed email and password in db
     user_ref = db_users.child(email)
     user_ref.set(
         {
@@ -153,25 +143,18 @@ def ping():
 
 @app.route('/raids', methods=['GET'])
 def raids():
-    # get the user's data from the database
     json = request.get_json()
     user_key = json['email']
     user_key = user_key.replace(".", "-")
     user = db_users.child(user_key).get()
 
-    # get the user's ping location
     ping = user['ping']
     ping = ping.split(',')
     ping_lat = ping[0]
     ping_long = ping[1]
 
-    # get the user's zip code
     zip = user['zip']
-
-    # get the list of raids from the Firebase database
     raids = db_raids.get()
-
-    # find nearby raids
     nearby_raids = []
     for raid in raids:
         raid_lat = raid['lat']
@@ -179,9 +162,7 @@ def raids():
         if distance(float(ping_lat), float(ping_long), float(raid_lat), float(raid_long)) < 0.5:
             if raid['id'] not in user['raids']:
                 nearby_raids.append(raid)
-
-    # return the list of nearby raids
-    return jsonify(nearby_raids)
+    return jsonify(nearby_raids) #returns all the nearby raids based on distance 
 
 
 @app.route("/finish_raid", methods=['POST'])
@@ -189,17 +170,14 @@ def finish_raid():
     data = request.get_json()
     email = data['email']
     key = email.replace(".", "-")
-    # Get the user's data from the Firebase database
     user = db_users.child(key).get()
-    # Update the user's points and raids
-    db_users.child(key).update(
+    db_users.child(key).update( #after every raid add 100 points and a +1 completion to the user's raids
         {
             'points': user['points'] + 100, 
             'raids': user['raids'] + 1,
             'completed_raids': user['completed_raids'].append(data['id'])
         }
     )
-    # Push the changes
     db_users.push()
     return {'status':200, 'message': 'Raid finished successfully'}
 
@@ -239,8 +217,7 @@ def badges():
     user_key = user_key.replace(".", "-")
     user = db_users.child(user_key).get()
 
-    # get the user's points
-    points = user['points']
+    points = user['points'] #retrieve user points to determine badges
     raid_count = user['raids']
 
     all_badges = {
@@ -270,9 +247,8 @@ def badges():
 
     return jsonify(badges)
 
-@app.route('/me', methods=['GET'])
+@app.route('/me', methods=['GET']) #just a me function
 def me():
-    # get the user's data from the database
     json = request.get_json()
     user_key = json['email']
     user_key = user_key.replace(".", "-")
@@ -286,7 +262,7 @@ def distance(lat1, lon1, lat2, lon2):
     a = 0.5 - math.cos((lat2 - lat1) * p)/2 + math.cos(lat1 * p) * math.cos(lat2 * p) * (1 - math.cos((lon2 - lon1) * p)) / 2
     return 12742 * math.asin(math.sqrt(a)) #2*R*asin...
 
-example_datetime_string = "2020-10-10 10:10:10"
+example_datetime_string = "2020-10-10 10:10:10" #example of a date-time string
 
 if __name__ == '__main__':
     app.run(debug=True)
