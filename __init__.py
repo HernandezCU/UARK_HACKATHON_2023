@@ -83,7 +83,13 @@ def register():
 @app.route('/ping') # endpoint when user pings location
 def ping():
     user_loc=request.args.get('user_loc')
+    request_data= request.get_json()
+    loc=request_data['pingloc']
 
+
+@app.route('/leaderboard')#leaderpoint endpoint
+def leaderboard():
+    leaderboard
 
 if __name__ == '__main__':
     app.run(debug=True)
