@@ -25,5 +25,11 @@ def search():
         return jsonify({'error': 'Unable to search for places'})
 
 
+@app.route('/ping') # endpoint when user pings location
+def ping():
+    user_loc=request.args.get('user_loc')
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
