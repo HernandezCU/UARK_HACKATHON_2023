@@ -131,12 +131,12 @@ def register():
     
 @app.route('/ping',methods=['POST', 'GET']) # endpoint when user pings location
 def ping():
-    user_lat=request.args.get('lat')
-    user_long=request.args.get('lng')
-    request_data= request.get_json()
-    loc=request_data['pingloc']
-    loc=str(loc)
-    user_ref=ref.child(loc)
+    user_lat = request.args.get('lat')
+    user_long = request.args.get('lng')
+    request_data = request.get_json()
+    loc = request_data['pingloc']
+    loc = str(loc)
+    user_ref = ref.child(loc)
     user_ref.push.set(loc)
 
 if __name__ == '__main__':
