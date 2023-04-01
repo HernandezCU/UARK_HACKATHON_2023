@@ -23,7 +23,7 @@ def hello():
 @app.route('/search') # Endpoint for whenever user searches for a place
 def search():
     # Get the zip code from the request parameters
-    zip_code = request.args.get('zip_code')
+    zip_code = request.get_json()['zip_code']
     
     # Set up API key and endpoint URL
     api_key = "AIzaSyAmvzpQ5kva14bp16Q82uJ2DAHqsrI7Ltc"
@@ -68,8 +68,8 @@ def search():
     # Return the list of places as a JSON response
     return jsonify(places)
 
-@app.route('/check_user', methods=['GET'])
-def check_user():
+@app.route('/login', methods=['GET'])
+def login():
     data = request.get_json()
     email = data['email']
     password = data['password']
@@ -83,6 +83,7 @@ def check_user():
             return jsonify({'success': True})
         else:
             return jsonify({'success': False, 'error': 'User not found or password is incorrect'})
+        
         
 @app.route('/leaderboard_add', methods=['POST'])
 def leaderboard():
@@ -127,17 +128,21 @@ def register():
             'ping': ''
         }
     )
-    return 'Registration successful'
+    return {'status':200, 'message': 'Registration successful'}
     
 @app.route('/ping',methods=['POST', 'GET']) # endpoint when user pings location
 def ping():
-    user_lat=request.args.get('lat')
-    user_long=request.args.get('lng')
+    # user_lat=request.args.get('lat')
+    # user_long=request.args.get('lng')
     request_data= request.get_json()
-    loc=request_data['pingloc']
-    loc=str(loc)
-    user_ref=ref.child(loc)
-    user_ref.push.set(loc)
+    lat = request_data['lat']
+    long = request_data['long']
+        
+    # loc=str(loc)
+    # user_ref=ref.child(loc)
+    # user_ref.push.set(loc)
+    return {'status':200, 'message': 'Ping successful'}
+
 
 if __name__ == '__main__':
     app.run(debug=True)
