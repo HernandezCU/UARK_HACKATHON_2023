@@ -21,7 +21,7 @@ db_raids = db.reference('raids')
 def hello():
     return 'Home page of our python application.'
 
-@app.route('/search') # Endpoint for whenever user searches for a place
+@app.route('/search') # Endpoint for parks/beaches/recreational spots 80000 meters nearby
 def search():
     # Get the zip code from the request parameters
     zip_code = request.get_json()['zip_code']
