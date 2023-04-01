@@ -5,6 +5,8 @@ from firebase_admin import db
 import requests
 import bcrypt
 import time
+import os
+import math
 
 app = Flask(__name__)
 
@@ -27,7 +29,8 @@ def search():
     zip_code = request.get_json()['zip_code']
     
     # Set up API key and endpoint URL
-    api_key = "AIzaSyAmvzpQ5kva14bp16Q82uJ2DAHqsrI7Ltc"
+    # get from environment variable
+    api_key = os.getenv('API_KEY')
     endpoint_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     
     # Get the latitude and longitude of the zip code using the Google Maps Geocoding API
@@ -38,6 +41,7 @@ def search():
     }
     geocoding_response = requests.get(geocoding_url, params=geocoding_params)
     geocoding_data = geocoding_response.json()
+    print(api_key)
     if len(geocoding_data["results"]) == 0:
         # Return an error message if the geocoding API does not return any results
         return jsonify({"error": "Invalid zip code"}), 400
@@ -73,6 +77,7 @@ def search():
 def login():
     data = request.get_json()
     email = data['email']
+    email = email.replace(".", "-")
     password = data['password']
 
     # Query the Firebase database for the user
@@ -94,6 +99,13 @@ def leaderboard():
     # Return the sorted list of users
     return jsonify(sorted_users)
 
+def generate_login_token():
+    # Generate a random token
+    token = str(time.time())
+    # Hash the token using SHA-256 algorithm
+    hashed_token = bcrypt.hashpw(token.encode(),"$2b$12$vj2GaHW10eRxDcJTTTAWI.".encode())
+    # Return the hashed token and the original token
+    return hashed_token, token
         
 @app.route('/register', methods=['POST'])
 def register():
@@ -101,9 +113,9 @@ def register():
     name = data['name']
     username = data['username']
     email = data['email']
+    email = email.replace(".", "-")
     password = data['password']
     zip = data['zip-code']
-    points = 0
     # Hash the email and password using SHA-256 algorithm
     p = password.encode()
     # hashed_password = bcrypt.hashpw(p,"$2b$12$vj2GaHW10eRxDcJTTTAWI.".encode())
@@ -115,7 +127,9 @@ def register():
             'password': bcrypt.hashpw(p,"$2b$12$vj2GaHW10eRxDcJTTTAWI.".encode()).decode(),
             'name': name,
             'zip': zip,
-            'points': points,
+            'points': 0,
+            'raids': 0,
+            'completed_raids': [],
             'username': username,
             'ping': ''
         }
@@ -129,7 +143,8 @@ def ping():
     request_data= request.get_json()
     lat = request_data['lat']
     long = request_data['lng']
-    user_key = request_data['key']
+    user_key = request_data['email']
+    user_key = user_key.replace(".", "-")
 
     # get the user's data from the database
     user = db_users.child(user_key).get()
@@ -144,10 +159,55 @@ def ping():
 
 @app.route('/raids', methods=['GET'])
 def raids():
-    # Get the list of raids from the Firebase database
+    # get the user's data from the database
+    json = request.get_json()
+    user_key = json['email']
+    user_key = user_key.replace(".", "-")
+    user = db_users.child(user_key).get()
+
+    # get the user's ping location
+    ping = user['ping']
+    ping = ping.split(',')
+    ping_lat = ping[0]
+    ping_long = ping[1]
+
+    # get the user's zip code
+    zip = user['zip']
+
+    # get the list of raids from the Firebase database
     raids = db_raids.get()
-    # Return the list of raids
-    return jsonify(raids)
+
+    # find nearby raids
+    nearby_raids = []
+    for raid in raids:
+        raid_lat = raid['lat']
+        raid_long = raid['lng']
+        if distance(float(ping_lat), float(ping_long), float(raid_lat), float(raid_long)) < 0.5:
+            if raid['id'] not in user['raids']:
+                nearby_raids.append(raid)
+
+    # return the list of nearby raids
+    return jsonify(nearby_raids)
+
+
+@app.route("/finish_raid", methods=['POST'])
+def finish_raid():
+    data = request.get_json()
+    email = data['email']
+    key = email.replace(".", "-")
+    # Get the user's data from the Firebase database
+    user = db_users.child(key).get()
+    # Update the user's points and raids
+    db_users.child(key).update(
+        {
+            'points': user['points'] + 100, 
+            'raids': user['raids'] + 1,
+            'completed_raids': user['completed_raids'].append(data['id'])
+        }
+    )
+    # Push the changes
+    db_users.push()
+    return {'status':200, 'message': 'Raid finished successfully'}
 
 @app.route('/create_raid', methods=['POST'])
 def create_raid():
@@ -155,7 +215,13 @@ def create_raid():
     name = data['name']
     lat = data['lat']
     lng = data['lng']
-    time = data['time']
+    time = data['datetime']
+    key = data['email']
+    typ = data['type']
+    key = key.replace(".", "-")
+    id = math.random()
+    while db_raids.child(id).get() != None:
+        id = math.random()
     # Store the raid in the Firebase database
     raid_ref = db_raids.child(name)
     raid_ref.set(
@@ -163,10 +229,21 @@ def create_raid():
             'name': name,
             'lat': lat,
             'lng': lng,
-            'time': time,
+            'date': time,
+            'created_by': key,
+            'id': id,
+            'type': typ
         }
     )
     return {'status':200, 'message': 'Raid created successfully'}
 
+def distance(lat1, lon1, lat2, lon2):
+    p = 0.017453292519943295     #Pi/180
+    a = 0.5 - math.cos((lat2 - lat1) * p)/2 + math.cos(lat1 * p) * math.cos(lat2 * p) * (1 - math.cos((lon2 - lon1) * p)) / 2
+    return 12742 * math.asin(math.sqrt(a)) #2*R*asin...
+
+example_datetime_string = "2020-10-10 10:10:10"
+
 if __name__ == '__main__':
     app.run(debug=True)
+    
