@@ -66,7 +66,7 @@ return to the app for a daily usage. There is a badge/level system to allow user
 - Deta (for hosting)
 
 # Badges & Logo
-![Logo](C:\Users\rcagu\Pictures\logo.JPG)
+![Logo](C:/Users/rcagu/Pictures/logo.JPG)
 
 
 # Credits
