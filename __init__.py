@@ -4,6 +4,7 @@ from firebase_admin import credentials
 from firebase_admin import db
 import requests
 import hashlib
+import bcrypt
 
 app = Flask(__name__)
 
@@ -54,19 +55,47 @@ def check_user():
         
 @app.route('/register', methods=['POST'])
 def register():
-    email = request.form.get('email')
-    password = request.form.get('password')
+    data = request.get_json()
+    name = data['name']
+    username = data['username']
+    email = data['email']
+    password = data['password']
+    zip = data['zip-code']
+    points = 0
     # Hash the email and password using SHA-256 algorithm
-    hashed_email = hashlib.sha256(email.encode('utf-8')).hexdigest()
-    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    p = password.encode()
+    # hashed_password = bcrypt.hashpw(p,"$2b$12$vj2GaHW10eRxDcJTTTAWI.".encode())
     # Store the hashed email and password in the Firebase database
-    user_ref = ref.child(hashed_email)
-    user_ref.set({'email': hashed_email, 'password': hashed_password})
+    user_ref = ref.child(email)
+    user_ref.set(
+        {
+            'email': email,
+            'password': password,
+            'name': name,
+            'zip': zip,
+            'points': points,
+            'username': username,
+            'ping': ''
+        }
+    )
     return 'Registration successful'
     
-@app.route('/ping') # endpoint when user pings location. Ping sends the location
+@app.route('/ping',methods=['POST']) # endpoint when user pings location
 def ping():
     user_loc=request.args.get('user_loc')
+    request_data= request.get_json()
+    loc=request_data['pingloc']
+    loc=str(loc)
+    user_ref=ref.child(loc)
+    user_ref.push.set(loc)
+    
+
+
+
+
+@app.route('/leaderboard')#leaderpoint endpoint
+def leaderboard():
+    leaderboard
 
 
 if __name__ == '__main__':
