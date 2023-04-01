@@ -1,7 +1,7 @@
 # GreenCityGo - University of Arkansas 2023 Hackathon
 
-Domain: greencitygo.net
-Swift GitHub Repo: https://github.com/HernandezCU/TrashGo
+-Domain: greencitygo.net
+-Swift GitHub Repo: https://github.com/HernandezCU/TrashGo
 
 # Description
 
@@ -66,8 +66,8 @@ return to the app for a daily usage. There is a badge/level system to allow user
 - Deta (for hosting)
 
 # Credits
-- Carlos Hernandez: github.com/HernandezCU
-- Roberto Aguero: github.com/robPTY
-- Matthew Anderson: github.com/notmatthewanderson8
+- Carlos Hernandez: https://github.com/HernandezCU
+- Roberto Aguero: https://github.com/robPTY
+- Matthew Anderson: https://github.com/notmatthewanderson8
 - Carlos Borjes:
 - Alexis Guzman: 
