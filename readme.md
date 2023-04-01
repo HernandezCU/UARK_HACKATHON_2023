@@ -67,10 +67,12 @@ return to the app for a daily usage. There is a badge/level system to allow user
 
 # Badges & Logo
 - Logo
-<img src="./statics/logo.JPG"  width="100"/>
+<img src="./statics/logo.jpg"  width="100"/>
 
 - Badges
-<img src="./statics/badge 1 raid.png"  width="100"/><img src="./statics/badge 50 raids.png"  width="100"/><img src="./statics/badge 500 pts.png"  width="100"/><img src="./statics/badge first badge.png"  width="100"/>
+<p float="left">
+    <img src="./statics/badge 1 raid.png"  width="100"/><img src="./statics/badge 50 raids.png"  width="100"/><img src="./statics/badge 500 pts.png"  width="100"/><img src="./statics/badge first badge.png"  width="100"/>
+</p>
 
 
 # Credits
