@@ -64,16 +64,23 @@ def register():
     user_ref.set({'email': hashed_email, 'password': hashed_password})
     return 'Registration successful'
     
-@app.route('/ping') # endpoint when user pings location
+@app.route('/ping',methods=['POST']) # endpoint when user pings location
 def ping():
     user_loc=request.args.get('user_loc')
     request_data= request.get_json()
     loc=request_data['pingloc']
+    loc=str(loc)
+    user_ref=ref.child(loc)
+    user_ref.push.set(loc)
+    
+
+
 
 
 @app.route('/leaderboard')#leaderpoint endpoint
 def leaderboard():
     leaderboard
+
 
 if __name__ == '__main__':
     app.run(debug=True)
