@@ -64,7 +64,7 @@ def register():
     user_ref.set({'email': hashed_email, 'password': hashed_password})
     return 'Registration successful'
     
-@app.route('/ping') # endpoint when user pings location
+@app.route('/ping') # endpoint when user pings location. Ping sends the location
 def ping():
     user_loc=request.args.get('user_loc')
 
