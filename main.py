@@ -146,15 +146,9 @@ def ping():
     user_key = request_data['email']
     user_key = user_key.replace(".", "-")
 
-    # get the user's data from the database
     user = db_users.child(user_key).get()
-    
-    # update the user's ping location
     db_users.child(user_key).update({'ping': f'{lat},{long}'})
-
-    # push the changes
     db_users.push()
-
     return {'status':200, 'message': 'Ping successful'}
 
 @app.route('/raids', methods=['GET'])

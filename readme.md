@@ -65,6 +65,10 @@ return to the app for a daily usage. There is a badge/level system to allow user
 - Firebase
 - Deta (for hosting)
 
+# Badges & Logo
+![Logo](C:\Users\rcagu\Pictures\logo.JPG)
+
+
 # Credits
 - Carlos Hernandez: https://github.com/HernandezCU
 - Roberto Aguero: https://github.com/robPTY
