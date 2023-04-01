@@ -1,7 +1,7 @@
 # GreenCityGo - University of Arkansas 2023 Hackathon
 
--Domain: greencitygo.net
--Swift GitHub Repo: https://github.com/HernandezCU/TrashGo
+- Domain: greencitygo.net
+- Swift GitHub Repo: https://github.com/HernandezCU/TrashGo
 
 # Description
 
