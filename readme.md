@@ -1,4 +1,4 @@
-UARK HACKTHON 2023
+GreenCityGo - University of Arkansas 2023 Hackathon
 
 # Endpoint Functionalities
 /search: This endpoint searches for parks, beaches, and recreational spots near a given zip code. It uses the Google Maps API to perform this search. The latitude and longitude of the zip code are obtained using the Google Maps Geocoding API. The endpoint returns a list of places as a JSON response.
@@ -12,3 +12,9 @@ UARK HACKTHON 2023
 /ping: This endpoint updates a user's location by storing their latitude and longitude in the Firebase database. It takes the user's latitude, longitude, and key as inputs and updates the "ping" field in the user's data. If the update is successful, it returns a JSON response with a "status" code of 200 and a "message" of "Ping successful".
 
 /raids: This endpoint retrieves data about raids from the Firebase database. It returns a JSON response with the raid data. The code does not provide details about how the raid data is stored in the database.
+
+# Tech Stack
+- Google Maps API
+- Flask
+- Firebase
+- Deta (for hosting)
