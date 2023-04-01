@@ -237,6 +237,56 @@ def create_raid():
     )
     return {'status':200, 'message': 'Raid created successfully'}
 
+@app.route('/badges', methods=['GET'])
+def badges():
+    # get the user's data from the database
+    json = request.get_json()
+    user_key = json['email']
+    user_key = user_key.replace(".", "-")
+    user = db_users.child(user_key).get()
+
+    # get the user's points
+    points = user['points']
+    raid_count = user['raids']
+
+    all_badges = {
+        "point_based": {
+            "100": "100_points",
+            "500": "500_points",
+            "1000": "1000_points",
+        },
+        "raids": {
+            "1": "1_raid",
+            "5": "5_raids",
+            "10": "10_raids",
+            "30": "30_raids",
+            "50": "50_raids",
+            "100": "100_raids",
+        }
+    }
+
+    badges = []
+    for badge in all_badges['point_based']:
+        if points >= int(badge):
+            badges.append(all_badges['point_based'][badge])
+
+    for badge in all_badges['raids']:
+        if raid_count >= int(badge):
+            badges.append(all_badges['raids'][badge])
+
+    return jsonify(badges)
+
+@app.route('/me', methods=['GET'])
+def me():
+    # get the user's data from the database
+    json = request.get_json()
+    user_key = json['email']
+    user_key = user_key.replace(".", "-")
+    user = db_users.child(user_key).get()
+
+    return jsonify(user)
+
+
 def distance(lat1, lon1, lat2, lon2):
     p = 0.017453292519943295     #Pi/180
     a = 0.5 - math.cos((lat2 - lat1) * p)/2 + math.cos(lat1 * p) * math.cos(lat2 * p) * (1 - math.cos((lon2 - lon1) * p)) / 2
