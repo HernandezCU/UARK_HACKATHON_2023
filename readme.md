@@ -66,7 +66,14 @@ return to the app for a daily usage. There is a badge/level system to allow user
 - Deta (for hosting)
 
 # Badges & Logo
-![Logo](C:/Users/rcagu/Pictures/logo.JPG)
+- Logo
+<img src="./statics/img/logo.png"  width="100"/>
+
+- Badges
+<img src="./statics/img/badge 1 raid.png"  width="100"/>
+<img src="./statics/img/badge 50 raid.png"  width="100"/>
+<img src="./statics/img/badge 500 raid.png"  width="100"/>
+<img src="./statics/img/badge first badge.png"  width="100"/>
 
 
 # Credits
