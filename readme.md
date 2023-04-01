@@ -7,10 +7,9 @@ environmental problems such as sustaining a clean environment as well as incenti
 return to the app for a daily usage. There is a badge/level system to allow users to feel recognized and show off to their friends.
 
 # Table of Contents 
-[TOC]
 
-- [Endpoint Functionalities](#EndpointFunctionalities)
-- [Tech Stack](#TechStack)
+- [Endpoints](#endpoints)
+- [Tech Stack](#techstack)
 
 # Endpoint Functionalities
 /search: This endpoint searches for parks, beaches, and recreational spots near a given zip code. It uses the Google Maps API to perform this search. The latitude and longitude of the zip code are obtained using the Google Maps Geocoding API. The endpoint returns a list of places as a JSON response. This endpoint expects a JSON payload with a single attribute, zip_code, which is a string representing the user's zip code. Example:
