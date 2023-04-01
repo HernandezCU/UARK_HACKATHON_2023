@@ -21,45 +21,32 @@ def hello():
 
 @app.route('/search') # Endpoint for whenever user searches for a place
 def search():
-    # Get the zip code from the request parameters
     zip_code = request.args.get('zip_code')
     
-    # Set up API key and endpoint URL
     api_key = "AIzaSyD7UOWXlZQSzZeoYtZ5KgzxP43PdPbLslU"
     endpoint_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     
-    # Get the latitude and longitude of the zip code using the Google Maps Geocoding API
     geocoding_url = "https://maps.googleapis.com/maps/api/geocode/json"
     geocoding_params = {"address": zip_code, "key": api_key}
     geocoding_response = requests.get(geocoding_url, params=geocoding_params)
     geocoding_data = geocoding_response.json()
     if len(geocoding_data["results"]) == 0:
-        # Return an error message if the geocoding API does not return any results
         return jsonify({"error": "Invalid zip code"}), 400
     location = geocoding_data["results"][0]["geometry"]["location"]
     lat, lng = location["lat"], location["lng"]
     
-    # Specify the location and keyword parameters for the API request
     params = {
         "key": api_key,
         "location": f"{lat},{lng}",
         "radius": "50",
         "keyword": "park|beach|recreation",
     }
-    
-    # Make the API request
     response = requests.get(endpoint_url, params=params)
-    
-    # Parse the response data as JSON
     data = response.json()
-    
-    # Extract the name and location of each place and store them in a list
     places = []
     for result in data["results"]:
         place = {"name": result["name"], "location": result["geometry"]["location"]}
         places.append(place)
-    
-    # Return the list of places as a JSON response
     return jsonify(places)
 
 @app.route('/check_user', methods=['GET'])
