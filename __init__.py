@@ -15,6 +15,14 @@ firebase_admin.initialize_app(cred, {
 })
 
 ref = db.reference('users')
+ref2 = db.reference('scores')
+
+new_user1 = {
+    'name': 'John Doe',
+    'points': 100
+}
+
+user_ref = ref2.push(new_user1)
 
 @app.route('/')
 def hello():
@@ -88,10 +96,6 @@ def ping():
     loc=str(loc)
     user_ref=ref.child(loc)
     user_ref.push.set(loc)
-    
-
-
-
 
 @app.route('/leaderboard')#leaderpoint endpoint
 def leaderboard():
