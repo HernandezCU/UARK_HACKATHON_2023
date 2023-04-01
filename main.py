@@ -73,7 +73,7 @@ def search():
     # Return the list of places as a JSON response
     return jsonify(places)
 
-@app.route('/login', methods=['GET'])
+@app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     email = data['email']
