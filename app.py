@@ -138,7 +138,14 @@ def ping():
     long = request_data['long']
     user_key = request_data['key']
 
+    # get the user's data from the database
+    user = ref.child(user_key).get()
     
+    # update the user's ping location
+    ref.child(user_key).update({'ping': f'{lat},{long}'})
+
+    # push the changes
+    ref.push()
 
     return {'status':200, 'message': 'Ping successful'}
 
