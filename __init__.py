@@ -1,7 +1,19 @@
 from flask import Flask, request, jsonify
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
 import requests
+import hashlib
 
 app = Flask(__name__)
+
+cred = credentials.Certificate('serviceAccountKey.json')
+
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://hackathon-ac68a-default-rtdb.firebaseio.com/'
+})
+
+ref = db.reference('users')
 
 @app.route('/')
 def hello():
@@ -24,11 +36,37 @@ def search():
     else:
         return jsonify({'error': 'Unable to search for places'})
 
+@app.route('/check_user', methods=['GET'])
+def check_user():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
 
+    # Query the Firebase database for the user
+    users = ref.order_by_child('email').equal_to(email).get()
+
+    # Check if the user exists and the password matches
+    for user_id, user in users.items():
+        if user['password'] == password:
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': 'User not found or password is incorrect'})
+        
+@app.route('/register', methods=['POST'])
+def register():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    # Hash the email and password using SHA-256 algorithm
+    hashed_email = hashlib.sha256(email.encode('utf-8')).hexdigest()
+    hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    # Store the hashed email and password in the Firebase database
+    user_ref = ref.child(hashed_email)
+    user_ref.set({'email': hashed_email, 'password': hashed_password})
+    return 'Registration successful'
+    
 @app.route('/ping') # endpoint when user pings location
 def ping():
     user_loc=request.args.get('user_loc')
-
 
 
 if __name__ == '__main__':
